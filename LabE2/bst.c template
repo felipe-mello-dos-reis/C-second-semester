@@ -1,0 +1,37 @@
+#include "bst.h"
+
+#include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct tree TREE;
+
+struct tree {
+};
+
+struct bst {
+};
+
+BST *bst_create() {
+}
+
+static void tree_destroy(TREE *tree) {
+}
+
+void bst_destroy(BST *bst) {
+}
+
+static TREE *tree_create(int value) {
+}
+
+static TREE *tree_insert(TREE *tree, int value) {
+}
+
+void bst_insert(BST *bst, int value) {
+}
+
+static void tree_dfs_inorder(const TREE *tree) {
+}
+
+void bst_dfs_inorder(const BST *bst) {
+}

@@ -1,0 +1,187 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "stack_extra.h"
+
+typedef struct JOGADOR JOGADOR;
+struct JOGADOR
+{
+	int posicao, num_imoveis;
+	STACK *dice;
+	STACK *imoveis_jogador;
+};
+
+
+void jogada (JOGADOR *, int *, int *);
+
+int main()
+{
+
+	int contador, element;
+	int *tab;
+	JOGADOR *jogador_1;
+	JOGADOR *jogador_2;
+
+	jogador_1 = (JOGADOR *)malloc(sizeof(JOGADOR));
+	jogador_2 = (JOGADOR *)malloc(sizeof(JOGADOR));
+//	REGISTRO DO TABULEIRO;
+
+	tab = (int *)malloc(sizeof(int)*16);
+	for(int i = 1; i <= 15; i++)
+	{
+		scanf("%d", &tab[i]);
+	}
+/*		printf("\nTabuleiro: ");
+	for(int i = 1; i <= 15; i++)
+	{
+		if(i==15)
+			printf("%d\n", tab[i]);
+		else
+			printf("%d ", tab[i]);
+	}
+*/
+
+
+//	REGISTRO DOS DADOS DO JOGADOR 1
+
+	contador = 0;
+	STACK *dice_aux_1;
+	dice_aux_1 = stack_create();
+    while (contador <= 15)
+    {
+    	scanf("%d", &element);
+    	stack_push(dice_aux_1, element);
+		contador+=element;
+	}
+	jogador_1->dice = stack_create();
+	jogador_1->dice = stack_reverse(dice_aux_1);
+/*	printf("Jogador 1: ");
+	stack_printTopDown(jogador_1->dice);
+*/
+
+//	REGISTRO DOS DADOS DO JOGADOR 2
+
+	contador = 0;
+	STACK *dice_aux_2;
+	dice_aux_2 = stack_create();
+    while (contador <= 15)
+    {
+    	scanf("%d", &element);
+    	stack_push(dice_aux_2, element);
+		contador+=element;
+	}
+	jogador_2->dice = stack_create();
+	jogador_2->dice = stack_reverse(dice_aux_2);
+/*	printf("Jogador 2: ");
+	stack_printTopDown(jogador_2->dice);
+*/
+//	REGISTRO DA LISTA DE PROPRIEDADES
+	int *imoveis;
+	imoveis = (int *)malloc(sizeof(int)*21);
+	for(int i = 1; i <= 20; i++)
+		imoveis[i] = 1;	//1 indica imovel DISPONIVEL, 0 indica imovel INDISPONIVEL
+	jogador_1->imoveis_jogador = stack_create();
+	jogador_2->imoveis_jogador = stack_create();
+
+//	JOGO
+
+	jogador_1->posicao = 0;
+	jogador_2->posicao = 0;
+	jogador_1->num_imoveis = 0;
+	jogador_2->num_imoveis = 0;
+	while(jogador_1->posicao <= 15 || jogador_2->posicao <= 15)
+	{
+		if(jogador_1->posicao <= 15)
+			jogada(jogador_1, tab, imoveis);
+		if(jogador_2->posicao <= 15)
+			jogada(jogador_2, tab, imoveis);
+	}
+
+
+//	ENCERRAMENTO
+
+	if(stack_isEmpty(jogador_1->imoveis_jogador) == 1)
+	{
+	//	printf("teste\n");
+		printf("0\n");
+	}
+	else
+	{
+		stack_printBottomUp(jogador_1->imoveis_jogador);
+	}
+//	printf("Num prop 1 = %d\n", jogador_1->num_imoveis);
+	if(stack_isEmpty(jogador_2->imoveis_jogador) == 1)
+	{
+	//	printf("teste\n");
+		printf("0\n");
+	}
+	else
+	{
+		stack_printBottomUp(jogador_2->imoveis_jogador);
+	}
+
+//	printf("teste\n");
+//	printf("Num prop 2 = %d\n", jogador_2->num_imoveis);
+	if(jogador_1->num_imoveis > jogador_2->num_imoveis)
+	{
+		printf("1");
+	}
+	if(jogador_1->num_imoveis < jogador_2->num_imoveis)
+	{
+		printf("2");
+	}
+	if(jogador_1->num_imoveis == jogador_2->num_imoveis)
+	{
+		printf("3");
+	}
+
+
+//	LIBREAÇÃO DE MEMORIA
+
+	free(tab);
+	stack_destroy(dice_aux_1);
+	stack_destroy(jogador_1->dice);
+	stack_destroy(dice_aux_2);
+	stack_destroy(jogador_2->dice);
+	free(imoveis);
+	stack_destroy(jogador_1->imoveis_jogador);
+	stack_destroy(jogador_2->imoveis_jogador);
+	free(jogador_1);
+	free(jogador_2);
+	return 0;
+}
+
+void jogada (JOGADOR *jogador, int *tab, int *imoveis)
+{
+	jogador->posicao += stack_top(jogador->dice);
+	stack_pop(jogador->dice);
+	if(jogador->posicao > 15)
+		return;
+	switch(tab[jogador->posicao])
+	{
+	case 0:
+		//nada acontece
+		break;
+	case -1:
+		//jogador deverá vender o ultimo imóvel adquirido
+		if(stack_isEmpty(jogador->imoveis_jogador) == 1)
+			break;
+		else
+		{
+			imoveis[stack_top(jogador->imoveis_jogador)] = 1;
+			stack_pop(jogador->imoveis_jogador);
+			jogador->num_imoveis--;
+			break;
+		}
+	default:
+		//jogador deverá comprar o imóvel de numero x, caso disponivel
+		if(imoveis[tab[jogador->posicao]] == 0)
+			break;
+		else
+		{
+			imoveis[tab[jogador->posicao]] = 0;
+			stack_push(jogador->imoveis_jogador, tab[jogador->posicao]);
+			jogador->num_imoveis++;
+			break;
+		}
+	}
+}

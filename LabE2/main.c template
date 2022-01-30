@@ -1,0 +1,16 @@
+#include <stdio.h>
+
+#include "bst.h"
+
+int main() {
+  int value;
+  BST *bst = bst_create();
+
+  while (scanf("%d", &value) != EOF)
+    bst_insert(bst, value);
+
+  bst_dfs_inorder(bst);
+  printf("\n");
+
+  bst_destroy(bst);
+}
